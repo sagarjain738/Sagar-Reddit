@@ -1,0 +1,76 @@
+1. Use Chakra theme to define styles & in that use styles & global to define global styles.
+2. Install React Typescript Snippet.
+3. Use "TFCD" to create a react Typescript Snippet for the project.
+4. If you want to import a component using a shortcut press Ctrl + . after typing its name & import it
+    e.g <Navbar />, click on Navbar & then press Ctrl +.
+    5. Create a image folder to store common assests & images in public directory.
+5. You can use Layout component of NextJS to keep code which is common in all pages & use it in _app.tsx
+6. Press Ctrl + Shift + P and search Organize Imports & it will remove unused imports & order in ASC.
+7. You can use [ComponentStyleConfig] type to create a custom button in Chakra UI using TS.
+8. InputGroup is used for creating input box with icons.
+9. Create a State Managment folders inside of a src folder.
+    ************************************** STATE MANAGMENT ************************************
+    import { atom } from "recoil";  // Import atom
+
+    export interface AuthModalState {   // Declare Interface
+    open: boolean;
+    view: "login" | "signup" | "resetPassword";
+    }
+
+    const defaultModalState: AuthModalState = { // Create Default state using TS
+    open: false,
+    view: "login",
+    };
+
+    export const authModalState = atom<AuthModalState>({    // Create atom
+    key: "authModalState",
+    default: defaultModalState, // Default state
+    });
+
+    import { RecoilRoot } from "recoil";    // Use this in _App.tsx file
+
+    import { useRecoilState } from "recoil";    // Use for accessing Global State
+    import { authModalState } from "../../../atoms/authModalAtom";  // Use the Atom for accesing its State
+    const [modalState, setModalState] = useRecoilState(authModalState);     // Use it like setState
+    const setModalState = useSetRecoilState(authModalState);    // Use it just to set State
+    const modalState = useRecoilValue(authModalState);      // Use it to only Read State Value
+
+    ************************************** STATE MANAGMENT ************************************
+
+10. Use event:React.ChangeEvent<HTMLInputElement> from giving type event.
+11. Firebase Setup
+
+    ************************************** Firebase ************************************
+
+    import { initializeApp, getApp, getApps } from "firebase/app";  // Fore creating App
+    import { getAuth } from "firebase/auth";                        // Firebase authentication
+    import { getFirestore } from "firebase/firestore";              // Used for Json data
+    import { getStorage } from "firebase/storage";                 // Used for Storing Image & Videos
+
+    Initialize Firebase
+    In NextJS we use SSR thats why we dont want to initialize the Firebase on bothe server side &
+    Client side so what we will do is check if the App already exist or not and then only we will 
+    proceed further
+
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    const firestore = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    export { app, firestore, auth, storage };
+
+    ************************************** Firebase ************************************
+
+12. use npm i react-firebase-hooks packet to use firebase smoothly
+    Go to its documentation on GitHub & the go to authentication Hooks & then go to
+    useCreateUserWithEmailAndPassword.
+
+    const [createUserWithEmailAndPassword, user,loading,error] = useCreateUserWithEmailAndPassword(auth);
+
+
+
+
+
+
+
+

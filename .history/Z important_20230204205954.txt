@@ -1,0 +1,173 @@
+1. Use the Chakra theme to define styles & in that use styles & global to define global styles.
+2. Install React Typescript Snippet.
+3. Use "TFCD" to create a react Typescript Snippet for the project.
+4. If you want to import a component using a shortcut press Ctrl + . after typing its name & import it
+    e.g <Navbar />, click on Navbar & then press Ctrl +.
+    5. Create an image folder to store common assets & images in a public directory.
+5. You can use the Layout component of NextJS to keep code that is common in all pages &
+   use it in _app.tsx
+6. Press Ctrl + Shift + P and search Organize Imports & it will remove unused imports & order in ASC.
+    Or use Shift + Alt + O
+7. You can use [ComponentStyleConfig] type to create a custom button in Chakra UI using TS.
+8. InputGroup is used for creating an input box with icons.
+9. Create a State Management folder inside of an src folder.
+
+    ************************************** STATE MANAGEMENT ************************************
+    import { atom } from "recoil";  // Import atom
+
+    export interface AuthModalState {   // Declare Interface
+    open: boolean;
+    view: "login" | "signup" | "resetPassword";
+    }
+
+    const defaultModalState: AuthModalState = { // Create Default state using TS
+    open: false,
+    view: "login",
+    };
+
+    export const authModalState = atom<AuthModalState>({    // Create atom
+    key: "authModalState",
+    default: defaultModalState, // Default state
+    });
+
+    import { RecoilRoot } from "recoil";    // Use this in _App.tsx file
+    import { useRecoilState } from "recoil";    // Use for accessing Global State
+    import { authModalState } from "../../../atoms/authModalAtom";  
+    // Use the Atom to access its State
+    import { useSetRecoilState } from "recoil";  
+    import { useRecoilValue } from "recoil";  
+
+    const [modalState, setModalState] = useRecoilState(authModalState);     // Use it like setState
+    const setModalState = useSetRecoilState(authModalState);    // Use it just to set State
+    const modalState = useRecoilValue(authModalState);      // Use it to only Read State Value
+
+    ************************************** STATE MANAGEMENT ************************************
+
+
+10. 
+    ************************************** TS ************************************
+
+    1. Use event: React.ChangeEvent<HTMLInputElement> from giving type event.
+    2. Use event: React.FormEvent<HTMLFormElement> for giving event type of Form Event.
+    3. FIREBASE_ERRORS[userError.message as keyof typeof FIREBASE_ERRORS] When you want to pass a
+       value to an object a key to get its value, use this for type casting it to that object.
+
+    ************************************** TS ************************************
+
+11. Firebase Setup
+
+    ************************************** Firebase ************************************
+
+    import { initializeApp, getApp, getApps } from "firebase/app";  // Fore creating App
+    import { getAuth } from "firebase/auth";                        // Firebase authentication
+    import { getFirestore } from "firebase/firestore";              // Used for Json data
+    import { getStorage } from "firebase/storage";                 // Used for Storing Image & Videos
+
+    Initialize Firebase
+    In NextJS we use SSR that's why we don't want to initialize the Firebase on both the server side &
+    Client-side so what we will do is check if the App already exists or not and then only we will 
+    proceed further
+
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    const firestore = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    export { app, firestore, auth, storage };
+
+12. use npm I react-firebase-hooks packet to use firebase smoothly
+    Go to its documentation on GitHub & go to authentication Hooks & then go to
+    useCreateUserWithEmailAndPassword.
+    
+    import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [createUserWithEmailAndPassword, user,loading,error] = useCreateUserWithEmailAndPassword(auth);
+
+13. On the submission of the form pass the username & password values to the above value returned by Hooks
+    createUserWithEmailAndPassword(signupForm.email, signupForm.password);
+
+14. Now Go to firebase & login there & open the console of the project & go to Build & select
+    authentication & then select Get Started.
+    Then select Email/Password & enable the Email / Password & Save it.
+    You Have to follow the same procedure for the Google Sign-In & Other signs in.
+    
+    import { useSignInWithGoogle } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [signInWithGoogle, user, loading, error] = useSignInWithGoogle(auth);
+
+
+15. Once done as above & enter username & Email to front end & go to firebase > Build > Authentication > User
+16. To handle Errors related to Firebase create a file Named Error in Firebase Folder & create
+    an object with errors defined in firebase & write a value to that key as whatever you want as output.
+
+    export const FIREBASE_ERRORS = {
+    "Firebase: Error (auth/email-already-in-use).":
+    "A User with this mail already Exists",
+    "Firebase: Error (auth/user-not-found).": "Invalid user Or Password",
+    "Firebase: Error (auth/wrong-password).": "Invalid email or password",
+    };
+
+17. import { useAuthState } from "react-firebase-hooks/auth"; 
+    import { auth } from "../../../Firebase/clientApp";
+    const [user, loading, error] = useAuthState(auth); 
+
+    this hook can be used to check if any user is login or not & get the logged-in User.
+
+18. To do signout
+    import { signOut } from "firebase/auth";
+    import { auth } from "../../../Firebase/clientApp";
+
+19. To reset password.
+    import { useSendPasswordResetEmail } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [sendPasswordResetEmail, sending, error] = useSendPasswordResetEmail(auth);
+    sendPasswordResetEmail is an async function so use it wisely.
+
+20. import { useAuthState } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [user, loading, error] = useAuthState(auth);
+
+    The user variable will have the user details who is logged in so this can be used to check the User
+    details so you can move further using option chaining.
+
+    To provide a Type to that user variable you need a User type that you can get from,
+
+    import { User } from "firebase/auth";
+
+    This way you can provide a User type to a variable user so you can use that variable as you need
+    or you can pass it as a prop and in the function where it's taken you can create a type as follow(Here
+    we have used it in RightContext.tsx file).
+
+    type RightContentProps = {
+    user?: User | null;
+    };
+21. import { getFirestore } from "firebase/firestore"; // Used for Json data
+    const firestore = getFirestore(app);    
+    The above 2 lines will be defined in the Firebase default file
+    // This will give us access to our Firebase DB, So Import it to read, write, To do any change
+       in our Database
+    import { doc } from "firebase/firestore";   // In file you want to insert In DB
+    import { firestore } from "@/Firebase/clientApp";   // Import firestore declared above in default file.
+
+    create a variable for accessing the collections and manipulate the collection in DB like below.
+    const communityDocRef = doc(firestore, "communities", communityName);
+
+    1. 1st argument is firestore. 
+    2. 2nd argument is Collection Name.
+    3. 3rd argument is the document ID means it's just a reference to the document, not the actual document,
+       this is how things work in firebase, we have document & Collection references & documents
+       & collections too and then we can use the references to CRUD the document & Collections.
+
+
+    
+
+   
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,488 @@
+1. Use the Chakra theme to define styles & in that use styles & global to define global styles.
+2. Install React Typescript Snippet.
+3. Use "TFCD" to create a react Typescript Snippet for the project.
+4. If you want to import a component using a shortcut press Ctrl + . after typing its name & import it
+    e.g <Navbar />, click on Navbar & then press Ctrl +.
+    5. Create an image folder to store common assets & images in a public directory.
+5. You can use the Layout component of NextJS to keep code that is common in all pages &
+   use it in _app.tsx
+6. Press Ctrl + Shift + P and search Organize Imports & it will remove unused imports & order in ASC.
+    Or use Shift + Alt + O
+7. You can use [ComponentStyleConfig] type to create a custom button in Chakra UI using TS.
+8. InputGroup is used for creating an input box with icons.
+9. Create a State Management folder inside of an src folder.
+
+    ************************************** STATE MANAGEMENT ************************************
+    import { atom } from "recoil";  // Import atom
+
+    export interface AuthModalState {   // Declare Interface
+    open: boolean;
+    view: "login" | "signup" | "resetPassword";
+    }
+
+    const defaultModalState: AuthModalState = { // Create Default state using TS
+    open: false,
+    view: "login",
+    };
+
+    export const authModalState = atom<AuthModalState>({    // Create atom
+    key: "authModalState",
+    default: defaultModalState, // Default state
+    });
+
+    import { RecoilRoot } from "recoil";    // Use this in _App.tsx file
+    import { useRecoilState } from "recoil";    // Use for accessing Global State
+    import { authModalState } from "../../../atoms/authModalAtom";  
+    // Use the Atom to access its State
+    import { useSetRecoilState } from "recoil";  
+    import { useRecoilValue } from "recoil";  
+
+    const [modalState, setModalState] = useRecoilState(authModalState);     // Use it like setState
+    const setModalState = useSetRecoilState(authModalState);    // Use it just to set State
+    const modalState = useRecoilValue(authModalState);      // Use it to only Read State Value
+
+    ************************************** STATE MANAGEMENT ************************************
+
+
+10. 
+    ************************************** TS ************************************
+
+    1. Use event: React.ChangeEvent<HTMLInputElement> from giving type event.
+    2. Use event: React.FormEvent<HTMLFormElement> for giving event type of Form Event.
+    3. FIREBASE_ERRORS[userError.message as keyof typeof FIREBASE_ERRORS] When you want to pass a
+       value to an object a key to get its value, use this for type casting it to that object.
+
+    ************************************** TS ************************************
+
+11. Firebase Setup
+
+    ************************************** Firebase ************************************
+
+    import { initializeApp, getApp, getApps } from "firebase/app";  // Fore creating App
+    import { getAuth } from "firebase/auth";                        // Firebase authentication
+    import { getFirestore } from "firebase/firestore";              // Used for Json data
+    import { getStorage } from "firebase/storage";                 // Used for Storing Image & Videos
+
+    Initialize Firebase
+    In NextJS we use SSR that's why we don't want to initialize the Firebase on both the server side &
+    Client-side so what we will do is check if the App already exists or not and then only we will 
+    proceed further
+
+    const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    const firestore = getFirestore(app);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    export { app, firestore, auth, storage };
+
+12. use npm I react-firebase-hooks packet to use firebase smoothly
+    Go to its documentation on GitHub & go to authentication Hooks & then go to
+    useCreateUserWithEmailAndPassword.
+    
+    import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [createUserWithEmailAndPassword, user,loading,error] = useCreateUserWithEmailAndPassword(auth);
+
+13. On the submission of the form pass the username & password values to the above value returned by Hooks
+    createUserWithEmailAndPassword(signupForm.email, signupForm.password);
+
+14. Now Go to firebase & login there & open the console of the project & go to Build & select
+    authentication & then select Get Started.
+    Then select Email/Password & enable the Email / Password & Save it.
+    You Have to follow the same procedure for the Google Sign-In & Other signs in.
+    
+    import { useSignInWithGoogle } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [signInWithGoogle, user, loading, error] = useSignInWithGoogle(auth);
+
+
+15. Once done as above & enter username & Email to front end & go to firebase > Build > Authentication > User
+16. To handle Errors related to Firebase create a file Named Error in Firebase Folder & create
+    an object with errors defined in firebase & write a value to that key as whatever you want as output.
+
+    export const FIREBASE_ERRORS = {
+    "Firebase: Error (auth/email-already-in-use).":
+    "A User with this mail already Exists",
+    "Firebase: Error (auth/user-not-found).": "Invalid user Or Password",
+    "Firebase: Error (auth/wrong-password).": "Invalid email or password",
+    };
+
+17. import { useAuthState } from "react-firebase-hooks/auth"; 
+    import { auth } from "../../../Firebase/clientApp";
+    const [user, loading, error] = useAuthState(auth); 
+
+    this hook can be used to check if any user is login or not & get the logged-in User.
+
+18. To do signout
+    import { signOut } from "firebase/auth";
+    import { auth } from "../../../Firebase/clientApp";
+
+19. To reset password.
+    import { useSendPasswordResetEmail } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [sendPasswordResetEmail, sending, error] = useSendPasswordResetEmail(auth);
+    sendPasswordResetEmail is an async function so use it wisely.
+
+20. import { useAuthState } from "react-firebase-hooks/auth";
+    import { auth } from "../../../Firebase/clientApp";
+    const [user, loading, error] = useAuthState(auth);
+
+    The user variable will have the user details who is logged in so this can be used to check the User
+    details so you can move further using option chaining.
+
+    To provide a Type to that user variable you need a User type that you can get from,
+
+    import { User } from "firebase/auth";
+
+    This way you can provide a User type to a variable user so you can use that variable as you need
+    or you can pass it as a prop and in the function where it's taken you can create a type as follow(Here
+    we have used it in RightContext.tsx file).
+
+    type RightContentProps = {
+    user?: User | null;
+    };
+21. import { getFirestore } from "firebase/firestore"; // Used for Json data
+    const firestore = getFirestore(app);    
+    The above 2 lines will be defined in the Firebase default file
+    // This will give us access to our Firebase DB, So Import it to read, write, To do any change
+       in our Database
+    import { doc, getDoc, setDoc,serverTimestamp } from "firebase/firestore";   // import this In
+    file you want to insert In DB
+    import { firestore } from "@/Firebase/clientApp";   // Import firestore declared above in 
+    default file.
+
+    create a variable for accessing the collections and manipulate the collection in DB like below.
+    const communityDocRef = doc(firestore, "communities", communityName);   // This is just reference
+
+    1. 1st argument is firestore. 
+    2. 2nd argument is Collection Name.
+    3. 3rd argument is the document ID means it's just a reference to the document, not the actual 
+    the document, this is how things work in firebase, we have documents & Collection references & 
+    documents & collections too and then we can use the references to CRUD the document & Collections.
+
+    getDoc()    // Gets the referenced Document.
+    const communityDoc = await getDoc(communityDocRef); // This is actual document search with reference
+    to above.
+
+    setDoc()    // This will either update or create the document if it doesn't Exist.
+    await setDoc(documentReference Like Above,{data})
+
+    In firebase the document can be of 1MB size.
+
+    Now we want to store the info of User & his communities & Communities & their Users.
+
+    //  SignUp Page
+    import { auth, firestore } from "../../../Firebase/clientApp";  // Firebase file in local system.
+    import { User } from "firebase/auth";   // To get user Type
+    import { addDoc, collection } from "firebase/firestore";
+
+    const createUserDocument = async (user: User) => {
+    //await addDoc(doc(firestore, "users"), JSON.parse(JSON.stringify(user));   // For Trial
+    await addDoc(collection(firestore, "users"), JSON.parse(JSON.stringify(user));
+    };
+
+    addDoc(collection_reference(database, collectionName), data_you_want_to_store).;
+
+    // OAuthButtons Page
+    import { auth, firestore } from "../../../Firebase/clientApp";
+    import { User } from "firebase/auth";
+    import { doc, setDoc } from "firebase/firestore";
+
+    const createUserDocument = async (user: User) => {
+    const userDocRef = doc(firestore, "users", user.uid);
+    await setDoc(userDocRef, user);
+    };
+
+22. //  CreateCommunitiesModal
+
+    We want to create community & add it to the user & if it doesn't get added we don't want to create it.
+
+    import {  doc,  getDoc,  runTransaction,  serverTimestamp,  setDoc,} from "firebase/firestore";
+    import { auth, firestore } from "@/Firebase/clientApp";
+
+    const [communityName, setCommunityName] = useState("");
+    const communityDocRef = doc(firestore, "communities", communityName);
+
+      runTransaction(firestore, async (transaction) => {
+        // const communityDoc = await getDoc(communityDocRef);
+        const communityDoc = await transaction.get(communityDocRef);
+
+        if (communityDoc.exists()) {
+          setError(`Sorry, r/${communityName} is taken. Try another.`);
+        }
+        // await setDoc(communityDocRef, {
+        transaction.set(communityDocRef, {
+          createorId: user?.uid,
+          createdAt: serverTimestamp(),
+          numberOfMembers: 1,
+          privacyType: communityType,
+        });
+
+        transaction.set(
+          doc(firestore, `users/${user?.uid}/communitySnippets`, communityName),
+          {
+            comunityId: communityName,
+            isModerator: true,
+          }
+        );
+      });
+
+23. install this package to serialize any data "safe-json-stringify";
+24.     import {  doc,  getDoc} from "firebase/firestore";
+     const communityDocref = doc(
+      firestore,
+      "communities",
+      context?.query.CommunityId as string
+    );
+    const communityDoc = await getDoc(communityDocref);
+    communityDoc.exists()   // Method to check if the record exists or NOT
+
+25. You can declarfe child type i using this type.      // PageContent page
+    type PageContentProps = {
+    children: (React.ReactElement | React.ReactNode)[];
+    };
+
+    or you can use {children[0 as keyof typeof children]}
+
+26. If you give two children to a component, then you can access them in using children[0] & children[1]
+
+27. Now we will create global state for communitySnippet, this is we are storing in firebase during
+    CreateCommunityModal page in Users collection.
+
+    interface CommunitySnippet {
+    communityId: string;
+    isModerator?: boolean;
+    imageURL?: string;
+    }
+
+    interface CommunityState {
+    mySnippets: CommunitySnippet[];
+    }
+
+    const defaultCommunityState: CommunityState = {
+    mySnippets: [],
+    };
+
+    
+    export const communityState = atom<CommunityState>({
+    key: "communitiesState",
+    default: defaultCommunityState,
+    });
+
+
+    We need to show the communities joined by user & give feature to let him join Or leave
+    community at multiple places thats why we will create a custom hook with this functionality.   
+
+    const resetCommunityState = useResetRecoilState(communityState);    // Used in UserMenu
+    To clear state of perticualr state
+    
+28. Check How community Created using Submit Page
+
+29. export type Tabitem = {
+    title: string;
+    icon: typeof Icon.arguments;
+    };
+
+    Use this to provide types to icon when you pass it as argument.
+
+30. use Flexgrow to give equal width to all the items in flexbox
+
+31.  Function For Reading File.
+     const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+     const reader = new FileReader();
+     const selectedImage = event.target.files?.[0];
+     if (selectedImage) {
+      reader.readAsDataURL(selectedImage);
+     }
+     reader.onload = (readerEvent) => {
+      if (readerEvent.target?.result) {
+        setSelectedFile(readerEvent.target?.result as string);
+      }
+     };
+     };
+
+32. Storing iamge to posts DB
+    const handleCreatePost = async () => {
+    // Create a new post object
+    // Store the post in DB
+    // check for selected file
+    // store in storage => getDownURL(return imageURL)
+    // & that returned image URL we will store to post DB
+    // Update POST doc by adding imageURL
+    // Redirect user back to the Community Page using the router
+    };
+33.  creatorDisplayName: user.email!.split("@")[0]
+     This ! mark in TS means you are 100% sure that value will exists, opposite of option chaining(?)
+
+34. before using the Firebase Storage you need to enable it.
+    =>  Go to Build
+    =>  Go to Storage
+
+35. Check NewPostForm page in Posts folder
+
+36. Check how posts saved are accessed using Posts Page
+
+37. Reefer Hooks folder for making custom hooks & check how to use Them.
+
+38. For an Async function you dont specify return type in TS function Defination.
+
+39. Use Moment library {moment(new Date(post.createdAt?.seconds * 1000)).fromNow()}{" "}.
+
+40. When we created new community, we added new sub collection to the users collection
+    with name CommunitySnippets & there we have stored the details of all the communities
+    the user is part of & at the same time in the communities collections we will update the
+    NumberOfUsers quantity by 1.
+
+    Same we will do with the Posts.
+    When user votes for any post we will create a new subCollection with name postVotes where
+    we will store the the records of posts user have votes on & which communities & we will 
+    update & delete the documents here depending on what user is voting, at same time we will 
+    update the posts collection with the value depending on users vote in voteStatus value.
+
+    1. Destructure the voteStatus os the current post from posts collection.
+    2. Check if user has voted on the post already by checking current posts id with the
+       postVotes arrays elements postId.
+
+       const { voteStatus } = post;
+       const existingVote = postStateValue.postVotes.find((vote) => vote.postId === post.id);
+
+    3. Then we get to know if the user is already voted or not.
+    4. then we create a copy of current data, like
+       const updatedPost = { ...post };
+       const updatedPosts = [...postStateValue.posts];
+       let updatedPostVotes = [...postStateValue.postVotes]; 
+
+       We have copied the state data so we can mutate the copied state data & in the end, we will
+       update the state with the updated Data. We want to avoid the mutation of the state directly.
+
+    If this is a new & fresh vote, then we need to create a new document in postVotes collection.
+
+    const postVoteRef = doc(collection(firestore, "users", `${user?.uid}/postVotes`));
+        // Create a new postVote Document
+        const newVote = {
+          id: postVoteRef.id,
+          postId: post.id!,
+          communityId,
+          voteValue: vote,  // 1 OR -1
+        };
+
+    batch.set(postVoteRef, newVote);
+
+    // Update the vote status in the new state variable so we can use it to update the final data
+    updatedPost.voteStatus = voteStatus + vote;
+    updatedPostVotes = [...updatedPostVotes, newVote as PostVote];
+
+    If the user has voted already
+    const postVoteRef = doc(
+          firestore,
+          "users",
+          `${user?.uid}/postVotes/${existingVote.id}`
+    );
+
+    if the user's existingVote === currentVote means he wants to cancel his vote.
+    if (existingVote.voteValue === vote)
+
+41. After logging Out we need to set the postVotes: [] to an empty array.
+
+42. After logging out if we log in again we don't see the PostVote, because we need to update the UI 
+    with the current COmmunityId for postVotes as it's needed. But on our logout function, we are
+    clearing our complete community State, but we need to clear only communitySnippets not the complete
+    state. so we will remove the clear state function on the logout function in UserMenu component.
+    In useCommunityData hook we will use useEffect to update the commuitySnippets to empty array
+    so if there's no user we will update it to an empty array.
+
+     useEffect(() => {
+    if (!user) {
+      setCommunityStateValue((prev) => ({
+        ...prev,
+        mySnippets: [],
+      }));
+      return;
+    }
+    getMySnippets();
+    }, [user]);
+
+43.  const resetCommunityState = useResetRecoilState(communityState); to clear whole state.
+
+44.  We added this in usePost Hooks onVote function so we can get to know which selected Post
+     if (postStateValue.selectedPost) {
+        setPostStateValue((prev) => ({
+          ...prev,
+          selectedPost: updatedPost,
+        }));
+      }
+
+45. We added this event type to many functions & their definitions.
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    then used event.stopPropagation(); to stop unnecessary routing & Execution.
+    check onVote in usePost hook & handleDelete in PostItem Page
+
+46. Every individual post can be seen once postStateValue for selectedPost is updated.
+    After refreshing the individual post page we don't see anything so we added,
+
+    const fetchPost = async (postId: string) => {
+    setLoading(true);
+    try {
+      const postDocRef = doc(firestore, "posts", postId);
+      const postDoc = await getDoc(postDocRef);
+
+      setPostStateValue((prev) => ({
+        ...prev,
+        selectedPost: {
+          id: postDoc.id,
+          ...postDoc.data(),
+        } as Post,
+      }));
+    } catch (error: any) {
+      console.log("Error");
+    }
+    setLoading(false);
+    };
+
+    useEffect(() => {
+    const { pid } = router.query;
+    if (pid && !postStateValue.selectedPost) {
+      fetchPost(pid as string);
+    }
+    }, [router.query, postStateValue.selectedPost]);
+
+47. After refreshing the individual post we loose our postVotes data as the postVote
+    data is updated based on the currentCummunity.
+
+    After refreshing the selected post we lose our community Data as we come there directly and 
+    so we lose our state and we don't get community Data because we used to get it from the index
+    page of CommunityId in SSR way and then we were adding it in the state.
+
+    now we will add a function in useCommunityData so we can populate state with communitydata,
+    so we can see our individual post, and postVotes & about the Community component.
+
+    const getCommunityData = async (communityId: string) => {
+    try {
+      const communityDocRef = doc(firestore, "communities", communityId);
+      const communityDoc = await getDoc(communityDocRef);
+
+      setCommunityStateValue((prev) => ({
+        ...prev,
+        currentCommunity: {
+          id: communityDoc.id,
+          ...communityDoc.data(),
+        } as Community,
+      }));
+    } catch (error: any) {
+      console.log("Error");
+    }
+    };
+
+     useEffect(() => {
+    const { CommunityId } = router.query;
+
+    if (CommunityId && !communityStateValue.currentCommunity) {
+      getCommunityData(CommunityId as string);
+    }
+    }, [router.query, communityStateValue.currentCommunity]);
+
+
+
+    
+
+
